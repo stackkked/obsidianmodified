@@ -12676,7 +12676,6 @@ local function GetFontForTextSize()
     else
         -- Already an Enum.Font
         return font
-    end
 end
 end
 
