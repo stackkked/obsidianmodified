@@ -12983,5 +12983,69 @@ function Library:CreateChatLogs(Config)
     return WidgetAPI
 end
 
+-- ChatLogs Module API
+local ChatLogsModule = {
+    Widget = nil,
+    Config = {},
+    Connections = {}
+}
+
+function Library:InitChatLogs(Config)
+    Config = Config or {}
+    if ChatLogsModule.Widget then
+        ChatLogsModule.Widget:Destroy()
+    end
+    
+    ChatLogsModule.Config = {
+        MaxMessages = Config.MaxMessages or 200,
+        ShowTimestamps = Config.ShowTimestamps ~= false,
+        ShowTeamColors = Config.ShowTeamColors ~= false,
+        AutoScroll = Config.AutoScroll ~= false,
+        AutoCapture = Config.AutoCapture ~= false,
+    }
+    
+    ChatLogsModule.Widget = Library:CreateChatLogs(ChatLogsModule.Config)
+    return ChatLogsModule.Widget
+end
+
+function Library:DestroyChatLogs()
+    if ChatLogsModule.Widget then
+        ChatLogsModule.Widget:Destroy()
+        ChatLogsModule.Widget = nil
+    end
+    for _, conn in ipairs(ChatLogsModule.Connections) do
+        conn:Disconnect()
+    end
+    ChatLogsModule.Connections = {}
+end
+
+function Library:SetChatLogsMaxMessages(Value)
+    if ChatLogsModule.Widget then
+        ChatLogsModule.Widget.MaxMessages = Value
+    end
+    ChatLogsModule.Config.MaxMessages = Value
+end
+
+function Library:SetChatLogsTimestamps(Value)
+    ChatLogsModule.Config.ShowTimestamps = Value
+    if ChatLogsModule.Widget then
+        ChatLogsModule.Widget.ShowTimestamps = Value
+    end
+end
+
+function Library:SetChatLogsTeamColors(Value)
+    ChatLogsModule.Config.ShowTeamColors = Value
+    if ChatLogsModule.Widget then
+        ChatLogsModule.Widget.ShowTeamColors = Value
+    end
+end
+
+function Library:SetChatLogsAutoScroll(Value)
+    ChatLogsModule.Config.AutoScroll = Value
+    if ChatLogsModule.Widget then
+        ChatLogsModule.Widget.IsAtBottom = Value
+    end
+end
+
 getgenv().Library = Library
 return Library
