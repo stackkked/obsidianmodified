@@ -12663,6 +12663,19 @@ function Library:Unload()
     getgenv().Library = nil
 end
 
+-- Helper to get proper Font for TextService:GetTextSize
+local function GetFontForTextSize()
+    local font = Library.Scheme.Font
+    if typeof(font) == "Font" then
+        return font
+    elseif typeof(font) == "FontFace" then
+        return font
+    else
+        -- font is an Enum.Font family (e.g., Enum.Font.Code), create Font object
+        return Font.new(font, Enum.FontWeight.Regular)
+    end
+end
+
 -- ChatLogs Widget
 function Library:CreateChatLogs(Config)
     Config = Config or {}
@@ -12805,7 +12818,7 @@ function Library:CreateChatLogs(Config)
     ChatLogsData.UIListLayout = NewElement("UIListLayout", {
         Parent = ChatLogsData.ScrollingFrame,
         SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 6)
+        Padding = UDim.new(0, 8)
     })
 
     -- Auto-scroll detection
@@ -12862,7 +12875,7 @@ function Library:CreateChatLogs(Config)
         -- Calculate height based on text
         local fontForTextService = GetFontForTextSize()
         local textBounds = TextService:GetTextSize(formattedMsg, 13, fontForTextService, Vector2.new(ChatLogsData.ScrollingFrame.AbsoluteSize.X - 20, math.huge))
-        msgLabel.Size = UDim2.new(1, -10, 0, textBounds.Y + 4)
+        msgLabel.Size = UDim2.new(1, -10, 0, textBounds.Y + 8)
 
         -- Limit messages
         local children = ChatLogsData.ScrollingFrame:GetChildren()
@@ -12991,18 +13004,6 @@ local ChatLogsModule = {
     Config = {},
     Connections = {}
 }
-
--- Helper to get proper Font for TextService:GetTextSize
-local function GetFontForTextSize()
-    local font = Library.Scheme.Font
-    if typeof(font) == "Font" then
-        return font
-    elseif typeof(font) == "FontFace" then
-        return font
-    else
-        return Font.fromEnum(font)
-    end
-end
 
 function Library:InitChatLogs(Config)
     Config = Config or {}
