@@ -12666,17 +12666,11 @@ end
 -- Helper to get proper Font for TextService:GetTextSize
 local function GetFontForTextSize()
     local font = Library.Scheme.Font
-    -- TextService:GetTextSize accepts Enum.Font, FontFace, or Font
-    -- Use the underlying Enum.Font family if possible
-    if typeof(font) == "Font" then
-        -- Extract family name from Font object
-        return font.Family
-    elseif typeof(font) == "FontFace" then
+    if typeof(font) == "Font" or typeof(font) == "FontFace" then
         return font
     else
-        -- Already an Enum.Font
-        return font
-end
+        return Font.fromEnum(font)
+    end
 end
 
 -- ChatLogs Widget
