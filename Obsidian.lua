@@ -12805,7 +12805,7 @@ function Library:CreateChatLogs(Config)
     ChatLogsData.UIListLayout = NewElement("UIListLayout", {
         Parent = ChatLogsData.ScrollingFrame,
         SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 2)
+        Padding = UDim.new(0, 6)
     })
 
     -- Auto-scroll detection
@@ -12860,7 +12860,7 @@ function Library:CreateChatLogs(Config)
         msgLabel.Text = formattedMsg
         
         -- Calculate height based on text
-        local fontForTextService = (typeof(Library.Scheme.Font) == "EnumItem" and Font.fromEnum(Library.Scheme.Font)) or Library.Scheme.Font
+        local fontForTextService = GetFontForTextSize()
         local textBounds = TextService:GetTextSize(formattedMsg, 13, fontForTextService, Vector2.new(ChatLogsData.ScrollingFrame.AbsoluteSize.X - 20, math.huge))
         msgLabel.Size = UDim2.new(1, -10, 0, textBounds.Y + 4)
 
@@ -12992,12 +12992,13 @@ local ChatLogsModule = {
     Connections = {}
 }
 
--- Helper to convert Font enum/FontFace to Font object for TextService
-local function GetFontForTextService(font)
+-- Helper to get proper Font for TextService:GetTextSize
+local function GetFontForTextSize()
+    local font = Library.Scheme.Font
     if typeof(font) == "Font" then
         return font
     elseif typeof(font) == "FontFace" then
-        return Font.fromEnum(font.Weight, font.Style) -- not exact, try fromId
+        return font
     else
         return Font.fromEnum(font)
     end
