@@ -12666,14 +12666,18 @@ end
 -- Helper to get proper Font for TextService:GetTextSize
 local function GetFontForTextSize()
     local font = Library.Scheme.Font
+    -- TextService:GetTextSize accepts Enum.Font, FontFace, or Font
+    -- Use the underlying Enum.Font family if possible
     if typeof(font) == "Font" then
-        return font
+        -- Extract family name from Font object
+        return font.Family
     elseif typeof(font) == "FontFace" then
         return font
     else
-        -- font is an Enum.Font family (e.g., Enum.Font.Code), create Font object
-        return Font.new(font, Enum.FontWeight.Regular)
+        -- Already an Enum.Font
+        return font
     end
+end
 end
 
 -- ChatLogs Widget
@@ -12749,18 +12753,18 @@ function Library:CreateChatLogs(Config)
 
     -- Buttons container in topbar
     local ButtonsContainer = NewElement("Frame", {
-        Size = UDim2.new(0, 80, 1, 0),
-        Position = UDim2.new(1, -85, 0, 0),
+        Size = UDim2.new(0, 100, 1, 0),
+        Position = UDim2.new(1, -105, 0, 0),
         BackgroundTransparency = 1,
         Parent = Topbar
     })
-    NewElement("UIListLayout", { Parent = ButtonsContainer, FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 5) })
+    NewElement("UIListLayout", { Parent = ButtonsContainer, FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4) })
 
     local ClearBtn = NewElement("TextButton", {
-        Size = UDim2.fromOffset(30, 20),
+        Size = UDim2.fromOffset(40, 20),
         BackgroundColor3 = Library.Scheme.MainColor,
         Text = "Clear",
-        TextColor3 = Library.Scheme.FontColor,
+        TextColor3 = Color3.new(1, 1, 1),
         FontFace = Library.Scheme.Font,
         TextSize = 11,
         Parent = ButtonsContainer
@@ -12769,10 +12773,10 @@ function Library:CreateChatLogs(Config)
     NewElement("UIStroke", { Color = Library.Scheme.OutlineColor, Parent = ClearBtn })
 
     local ToggleBtn = NewElement("TextButton", {
-        Size = UDim2.fromOffset(30, 20),
+        Size = UDim2.fromOffset(24, 20),
         BackgroundColor3 = Library.Scheme.MainColor,
         Text = "v",
-        TextColor3 = Library.Scheme.FontColor,
+        TextColor3 = Color3.new(1, 1, 1),
         FontFace = Library.Scheme.Font,
         TextSize = 12,
         Parent = ButtonsContainer
@@ -12781,15 +12785,16 @@ function Library:CreateChatLogs(Config)
     NewElement("UIStroke", { Color = Library.Scheme.OutlineColor, Parent = ToggleBtn })
 
     local CloseBtn = NewElement("TextButton", {
-        Size = UDim2.fromOffset(20, 20),
-        BackgroundTransparency = 1,
+        Size = UDim2.fromOffset(24, 20),
+        BackgroundColor3 = Library.Scheme.MainColor,
         Text = "X",
-        TextColor3 = Library.Scheme.RedColor or Color3.fromRGB(255, 50, 50),
+        TextColor3 = Color3.new(1, 1, 1),
         FontFace = Library.Scheme.Font,
-        TextSize = 14,
-        Parent = Topbar
+        TextSize = 12,
+        Parent = ButtonsContainer
     })
-    CloseBtn.LayoutOrder = 10
+    NewElement("UICorner", { CornerRadius = UDim.new(0, 4), Parent = CloseBtn })
+    NewElement("UIStroke", { Color = Library.Scheme.RedColor or Color3.fromRGB(255, 50, 50), Parent = CloseBtn })
 
     -- Make draggable
     Library:MakeDraggable(ChatLogsData.Widget, Topbar)
@@ -12818,7 +12823,7 @@ function Library:CreateChatLogs(Config)
     ChatLogsData.UIListLayout = NewElement("UIListLayout", {
         Parent = ChatLogsData.ScrollingFrame,
         SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 8)
+        Padding = UDim.new(0, 12)
     })
 
     -- Auto-scroll detection
@@ -12854,6 +12859,7 @@ function Library:CreateChatLogs(Config)
             BackgroundTransparency = 1,
             FontFace = Library.Scheme.Font,
             TextSize = 13,
+            TextColor3 = Color3.new(1, 1, 1),
             TextXAlignment = Enum.TextXAlignment.Left,
             TextYAlignment = Enum.TextYAlignment.Top,
             TextWrapped = true,
