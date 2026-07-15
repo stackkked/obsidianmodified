@@ -12710,7 +12710,8 @@ function Library:CreateChatLogs(Config)
         Name = "ChatLogsWidget",
         Size = UDim2.fromOffset(Config.Width or 500, Config.Height or 350),
         Position = Config.Position or UDim2.new(0.5, -250, 0.5, -175),
-        BackgroundColor3 = Library.Scheme.BackgroundColor,
+        BackgroundColor3 = Color3.new(0, 0, 0),
+        BackgroundTransparency = 1,
         BorderSizePixel = 0,
         Parent = ScreenGui,
         ClipsDescendants = true,
@@ -12718,19 +12719,19 @@ function Library:CreateChatLogs(Config)
         Active = true,
         Draggable = true
     })
-    NewElement("UIStroke", { Color = Library.Scheme.OutlineColor, Thickness = 1, Parent = ChatLogsData.Widget })
-    NewElement("UICorner", { CornerRadius = UDim.new(0, Library.CornerRadius), Parent = ChatLogsData.Widget })
+    -- (no UIStroke/UICorner - transparent background)
 
     -- Topbar
     local Topbar = NewElement("Frame", {
         Name = "Topbar",
         Size = UDim2.new(1, 0, 0, 28),
         BackgroundColor3 = Library.Scheme.MainColor,
+        BackgroundTransparency = 1,
         BorderSizePixel = 0,
         Parent = ChatLogsData.Widget
     })
     NewElement("UICorner", { CornerRadius = UDim.new(0, Library.CornerRadius), Parent = Topbar })
-    NewElement("Frame", { Size = UDim2.new(1, 0, 0, 6), Position = UDim2.new(0,0,1,-6), BackgroundColor3 = Library.Scheme.MainColor, BorderSizePixel = 0, Parent = Topbar })
+    NewElement("Frame", { Size = UDim2.new(1, 0, 0, 6), Position = UDim2.new(0,0,1,-6), BackgroundTransparency = 1, BorderSizePixel = 0, Parent = Topbar })
 
     local Title = NewElement("TextLabel", {
         Size = UDim2.new(1, -90, 1, 0),
@@ -12849,6 +12850,7 @@ function Library:CreateChatLogs(Config)
         -- Create message label
         local msgLabel = NewElement("TextLabel", {
             Size = UDim2.new(1, -10, 0, 0),
+            AutomaticSize = Enum.AutomaticSize.Y,
             BackgroundTransparency = 1,
             FontFace = Library.Scheme.Font,
             TextSize = 13,
@@ -12870,11 +12872,6 @@ function Library:CreateChatLogs(Config)
         local formattedMsg = string.format('%s: %s', formattedName, message)
         
         msgLabel.Text = formattedMsg
-        
-        -- Calculate height based on text
-        local fontForTextService = GetFontForTextSize()
-        local textBounds = TextService:GetTextSize(formattedMsg, 13, fontForTextService, Vector2.new(ChatLogsData.ScrollingFrame.AbsoluteSize.X - 20, math.huge))
-        msgLabel.Size = UDim2.new(1, -10, 0, textBounds.Y + 8)
 
         -- Limit messages
         local children = ChatLogsData.ScrollingFrame:GetChildren()
