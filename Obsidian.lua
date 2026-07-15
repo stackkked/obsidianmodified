@@ -12860,7 +12860,8 @@ function Library:CreateChatLogs(Config)
         msgLabel.Text = formattedMsg
         
         -- Calculate height based on text
-        local textBounds = TextService:GetTextSize(formattedMsg, 13, Library.Scheme.Font, Vector2.new(ChatLogsData.ScrollingFrame.AbsoluteSize.X - 20, math.huge))
+        local fontForTextService = (typeof(Library.Scheme.Font) == "EnumItem" and Font.fromEnum(Library.Scheme.Font)) or Library.Scheme.Font
+        local textBounds = TextService:GetTextSize(formattedMsg, 13, fontForTextService, Vector2.new(ChatLogsData.ScrollingFrame.AbsoluteSize.X - 20, math.huge))
         msgLabel.Size = UDim2.new(1, -10, 0, textBounds.Y + 4)
 
         -- Limit messages
@@ -12980,20 +12981,32 @@ function Library:CreateChatLogs(Config)
         end))
     end
 
-    return WidgetAPI
+    return WidgetAPI, ChatLogsData
 end
 
 -- ChatLogs Module API
 local ChatLogsModule = {
-    Widget = nil,
+    WidgetAPI = nil,
+    ChatLogsData = nil,
     Config = {},
     Connections = {}
 }
 
+-- Helper to convert Font enum/FontFace to Font object for TextService
+local function GetFontForTextService(font)
+    if typeof(font) == "Font" then
+        return font
+    elseif typeof(font) == "FontFace" then
+        return Font.fromEnum(font.Weight, font.Style) -- not exact, try fromId
+    else
+        return Font.fromEnum(font)
+    end
+end
+
 function Library:InitChatLogs(Config)
     Config = Config or {}
-    if ChatLogsModule.Widget then
-        ChatLogsModule.Widget:Destroy()
+    if ChatLogsModule.WidgetAPI then
+        ChatLogsModule.WidgetAPI:Destroy()
     end
     
     ChatLogsModule.Config = {
@@ -13004,14 +13017,17 @@ function Library:InitChatLogs(Config)
         AutoCapture = Config.AutoCapture ~= false,
     }
     
-    ChatLogsModule.Widget = Library:CreateChatLogs(ChatLogsModule.Config)
-    return ChatLogsModule.Widget
+    local WidgetAPI, ChatLogsData = Library:CreateChatLogs(ChatLogsModule.Config)
+    ChatLogsModule.WidgetAPI = WidgetAPI
+    ChatLogsModule.ChatLogsData = ChatLogsData
+    return WidgetAPI
 end
 
 function Library:DestroyChatLogs()
-    if ChatLogsModule.Widget then
-        ChatLogsModule.Widget:Destroy()
-        ChatLogsModule.Widget = nil
+    if ChatLogsModule.WidgetAPI then
+        ChatLogsModule.WidgetAPI:Destroy()
+        ChatLogsModule.WidgetAPI = nil
+        ChatLogsModule.ChatLogsData = nil
     end
     for _, conn in ipairs(ChatLogsModule.Connections) do
         conn:Disconnect()
@@ -13020,30 +13036,24 @@ function Library:DestroyChatLogs()
 end
 
 function Library:SetChatLogsMaxMessages(Value)
-    if ChatLogsModule.Widget then
-        ChatLogsModule.Widget.MaxMessages = Value
-    end
     ChatLogsModule.Config.MaxMessages = Value
+    if ChatLogsModule.ChatLogsData then
+        ChatLogsModule.ChatLogsData.MaxMessages = Value
+    end
 end
 
 function Library:SetChatLogsTimestamps(Value)
     ChatLogsModule.Config.ShowTimestamps = Value
-    if ChatLogsModule.Widget then
-        ChatLogsModule.Widget.ShowTimestamps = Value
-    end
 end
 
 function Library:SetChatLogsTeamColors(Value)
     ChatLogsModule.Config.ShowTeamColors = Value
-    if ChatLogsModule.Widget then
-        ChatLogsModule.Widget.ShowTeamColors = Value
-    end
 end
 
 function Library:SetChatLogsAutoScroll(Value)
     ChatLogsModule.Config.AutoScroll = Value
-    if ChatLogsModule.Widget then
-        ChatLogsModule.Widget.IsAtBottom = Value
+    if ChatLogsModule.ChatLogsData then
+        ChatLogsModule.ChatLogsData.IsAtBottom = Value
     end
 end
 
