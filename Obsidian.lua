@@ -12848,15 +12848,14 @@ function Library:CreateChatLogs(Config)
             Parent = ChatLogsData.ScrollingFrame
         })
 
-        -- Format: [HH:MM:SS] Name: message
-        -- Name is colored by team color
-        local formattedName = string.format('<font color="rgb(%d,%d,%d)">%s</font>', 
-            math.floor(teamColor.R * 255), 
-            math.floor(teamColor.G * 255), 
-            math.floor(teamColor.B * 255), 
+        -- Format: Name: message (Name is real name, colored by team color)
+        local formattedName = string.format('<font color="rgb(%d,%d,%d)">%s</font>',
+            math.floor(teamColor.R * 255),
+            math.floor(teamColor.G * 255),
+            math.floor(teamColor.B * 255),
             playerName
         )
-        local formattedMsg = string.format('[<font color="rgb(160,160,160)">%s</font>] %s: %s', timestamp, formattedName, message)
+        local formattedMsg = string.format('%s: %s', formattedName, message)
         
         msgLabel.Text = formattedMsg
         
